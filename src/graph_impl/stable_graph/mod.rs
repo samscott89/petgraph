@@ -21,7 +21,9 @@ use crate::iter_utils::IterUtilsExt;
 
 use super::{index_twice, Edge, Frozen, Node, Pair, DIRECTIONS};
 use crate::visit;
-use crate::visit::{EdgeIndexable, EdgeRef, IntoEdgeReferences, NodeIndexable};
+use crate::visit::{
+    EdgeIndexable, EdgeRef, IntoEdgeReferences, NodeCompactIndexable, NodeIndexable,
+};
 use crate::IntoWeightedEdge;
 
 // reexport those things that are shared with Graph
@@ -102,6 +104,13 @@ pub type StableDiGraph<N, E, Ix = DefaultIx> = StableGraph<N, E, Directed, Ix>;
 /// For example, an edge between *1* and *2* is equivalent to an edge between
 /// *2* and *1*.
 pub type StableUnGraph<N, E, Ix = DefaultIx> = StableGraph<N, E, Undirected, Ix>;
+
+impl<N, E, Ty, Ix> NodeCompactIndexable for StableGraph<N, E, Ty, Ix>
+where
+    Ty: EdgeType,
+    Ix: IndexType,
+{
+}
 
 impl<N, E, Ty, Ix> fmt::Debug for StableGraph<N, E, Ty, Ix>
 where

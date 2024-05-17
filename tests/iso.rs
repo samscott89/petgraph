@@ -223,12 +223,36 @@ fn parse_graph<Ty: EdgeType>(s: &str) -> Graph<(), (), Ty> {
     gr
 }
 
+/// Parse a text adjacency matrix format into a directed graph
+fn parse_stable_graph<Ty: EdgeType>(s: &str) -> StableGraph<(), (), Ty> {
+    let mut gr = StableGraph::with_capacity(0, 0);
+    let s = s.trim();
+    let lines = s.lines().filter(|l| !l.is_empty());
+    for (row, line) in lines.enumerate() {
+        for (col, word) in line.split(' ').filter(|s| !s.is_empty()).enumerate() {
+            let has_edge = word.parse::<i32>().unwrap();
+            assert!(has_edge == 0 || has_edge == 1);
+            if has_edge == 0 {
+                continue;
+            }
+            while col >= gr.node_count() || row >= gr.node_count() {
+                gr.add_node(());
+            }
+            gr.update_edge(node_index(row), node_index(col), ());
+        }
+    }
+    gr
+}
+
 fn str_to_graph(s: &str) -> Graph<(), (), Undirected> {
     parse_graph(s)
 }
 
 fn str_to_digraph(s: &str) -> Graph<(), (), Directed> {
     parse_graph(s)
+}
+fn str_to_stable_graph(s: &str) -> StableGraph<(), (), Directed> {
+    parse_stable_graph(s)
 }
 
 /// Parse a file in adjacency matrix format into a directed graph
@@ -289,6 +313,10 @@ fn petersen_undir_iso() {
 fn full_iso() {
     let a = str_to_graph(FULL_A);
     let b = str_to_graph(FULL_B);
+
+    assert!(petgraph::algo::is_isomorphic(&a, &b));
+    let a = str_to_stable_graph(FULL_A);
+    let b = str_to_stable_graph(FULL_B);
 
     assert!(petgraph::algo::is_isomorphic(&a, &b));
 }
